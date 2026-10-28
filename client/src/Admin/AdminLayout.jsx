@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import "./admin.css";
+import "./Admin.css";
 
 const links = [
   ["/admin", "Users", true],

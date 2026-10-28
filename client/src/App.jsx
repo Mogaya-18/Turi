@@ -1,9 +1,6 @@
+// Teammates: import your own routes here, e.g. import { userRoutes } from "./User/userRoutes";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { adminRoutes } from "./Admin/Adminroutes";
-// Teammates: import your own routes here, e.g. import { userRoutes } from "./User/userRoutes";
-
-
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./User/Dashboard";
 import BookAppointment from "./User/BookAppointment";
 import Consultation from "./User/Consultation";
