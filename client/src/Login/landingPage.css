@@ -1,0 +1,256 @@
+/* Import Google Font */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+/* Scope everything specifically to your page container */
+.landing-page {
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings only inside your landing page */
+.landing-page h1,
+.landing-page h2,
+.landing-page h3,
+.landing-page h4 {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+/* Specific Heading Sizing */
+.landing-page .hero-text h1 {
+  font-size: 1.85rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* Paragraphs only inside your landing page */
+.landing-page p {
+  font-weight: 400;
+  color: #4b5563;
+  line-height: 1.45;
+}
+
+/* 1. PAGE & NAVIGATION STYLES */
+.navbar {
+  display: flex;
+  align-items: center;
+  padding-bottom: 0.5rem;
+}
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.logo-icon {
+  font-family: 2.2rem;
+  color: #008080;
+  font-weight: bold;
+}
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+.brand-name {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0284c7;
+  line-height: 1;
+}
+.brand-subtext {
+  font-size: 0.65rem;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+.landing-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  background-color: #f4f8fa;
+}
+/* 2. HERO & CAROUSEL SECTION */
+.hero-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+.hero-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 1.25rem;
+}
+.hero-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+}
+.hero-image {
+  width: 50%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.hero-text {
+  width: 50%;
+}
+.hero-text h1 {
+  font-size: 1.75rem;
+  color: #0f172a;
+  margin-bottom: 0.75rem;
+  line-height: 1.25;
+}
+.hero-text p {
+  color: #475569;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+.nav-arrow {
+  background-color: #008080;
+  color: #ffffff;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition:
+    opacity 0.2s ease,
+    transform 0.1s ease;
+  flex-shrink: 0;
+}
+.nav-arrow:hover {
+  opacity: 0.85;
+}
+.nav-arrow:active {
+  transform: scale(0.95);
+}
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  width: 100%;
+}
+.btn {
+  padding: 0.75rem 2.25rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.1s ease;
+}
+.btn-teal {
+  background-color: #008080;
+  color: #ffffff;
+}
+.btn-blue {
+  background-color: #0284c7;
+  color: #ffffff;
+}
+.btn:hover {
+  opacity: 0.9;
+}
+.btn:active {
+  transform: scale(0.98);
+}
+/* 3. GRID & CARD STYLES (from original css) */
+.three-column-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.feature-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.how-it-works h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+/* 4. MEDIA QUERIES (RESPONSIVE DESIGN) */
+@media (max-width: 768px) {
+  .three-column-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-content {
+    flex-direction: column;
+  }
+  .hero-image,
+  .hero-text {
+    width: 100%;
+  }
+  .hero-image {
+    height: 180px;
+  }
+  .cta-buttons {
+    flex-direction: column;
+  }
+  .btn {
+    width: 100%;
+  }
+}
+.step-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+.step-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+.step-text h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: #1e293b;
+}
+.step-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.4;
+}
