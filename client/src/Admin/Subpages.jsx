@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PageHead, DataTable, Badge } from "./components";
-import { doctors, queueSeed, stockSeed, auditSeed } from "./mockData";
+import { doctors, queueSeed, stockSeed, auditSeed } from "./Mockdata";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
