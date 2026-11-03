@@ -5,7 +5,7 @@ import { adminRoutes } from "./Admin/Adminroutes";
 
 // Auth Components
 import Login from "./Login/Login";
-import Register from "./Register/Register";
+import Register from "./Login/Register";
 
 // User / Patient Components
 import Dashboard from "./User/Dashboard";

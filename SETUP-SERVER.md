@@ -32,11 +32,11 @@ npm install express cors dotenv
 cd ..
 ```
 
-| Package | Purpose |
-| --- | --- |
-| `express` | The server framework |
-| `cors` | Lets the React app call the server |
-| `dotenv` | Loads secrets from a `.env` file |
+| Package   | Purpose                            |
+| --------- | ---------------------------------- |
+| `express` | The server framework               |
+| `cors`    | Lets the React app call the server |
+| `dotenv`  | Loads secrets from a `.env` file   |
 
 If `Server` has no code yet, create a starter file:
 
@@ -62,7 +62,7 @@ If a main file already exists (`server.js`, `index.js`, `app.js`), do **not** ov
 ```powershell
 cd Server
 npm install
-node index.js
+node server.js
 ```
 
 Use your actual main file name if it is different. You should see:
@@ -76,7 +76,7 @@ Server running on port 5000
 Open `http://localhost:5000/api/health` in a browser. You should see:
 
 ```json
-{"status":"ok"}
+{ "status": "ok" }
 ```
 
 ## 6. Rules for the API
@@ -93,7 +93,7 @@ DB_URL=your-database-url-here
 Load it at the top of your main file:
 
 ```js
-require('dotenv').config();
+require("dotenv").config();
 ```
 
 ## 7. Make sure the root .gitignore exists
@@ -137,19 +137,19 @@ If `git push` is rejected, run `git pull` and then `git push` again.
 
 Use two terminals:
 
-| Terminal | Commands |
-| --- | --- |
-| 1 (server) | `cd Server` then `node index.js` |
-| 2 (React) | `cd client` then `npm run dev` |
+| Terminal   | Commands                          |
+| ---------- | --------------------------------- |
+| 1 (server) | `cd Server` then `node server.js` |
+| 2 (React)  | `cd client` then `npm run dev`    |
 
 React runs at `http://localhost:5173` and forwards `/api` requests to the server at port 5000 (configured in `client/vite.config.js`).
 
 ## Troubleshooting
 
-| Problem | Fix |
-| --- | --- |
-| `Cannot find module 'express'` | Run `npm install` inside `Server` |
-| `Port 5000 already in use` | Close the other terminal running the server, or change `PORT` |
+| Problem                            | Fix                                                                        |
+| ---------------------------------- | -------------------------------------------------------------------------- |
+| `Cannot find module 'express'`     | Run `npm install` inside `Server`                                          |
+| `Port 5000 already in use`         | Close the other terminal running the server, or change `PORT`              |
 | React gets a network or CORS error | Make sure `app.use(cors())` is in your main file and the server is running |
-| `node index.js` file not found | Check the main file name with `dir Server` |
-| `git push` rejected | Run `git pull`, then `git push` |
+| `node index.js` file not found     | Check the main file name with `dir Server`                                 |
+| `git push` rejected                | Run `git pull`, then `git push`                                            |
