@@ -1,185 +1,115 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Layout from './Layout/Layout';
+import './Consultation.css';
 
 export default function Consultation() {
-  const [patientInfo, setPatientInfo] = useState({ name: '', age: '', gender: '', appointmentTime: '' });
-  const [notes, setNotes] = useState('');
-  const [diagnosis, setDiagnosis] = useState('');
-  
-  const [pharmacyItems, setPharmacyItems] = useState([]);
-  const [prescriptions, setPrescriptions] = useState([
-    { medicineId: '', dosage: '', frequency: '', days: '' }
-  ]);
+  const navigate = useNavigate();
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoOff, setIsVideoOff] = useState(false);
 
-  useEffect(() => {
-    // Fetch active session / patient details[cite: 1]
-    fetch('/api/consultations/current')
-      .then((res) => res.json())
-      .then((data) => setPatientInfo(data))
-      .catch((err) => console.error(err));
-
-    // Fetch medication inventory for selector dropdowns[cite: 1]
-    fetch('/api/pharmacy/inventory')
-      .then((res) => res.json())
-      .then((data) => setPharmacyItems(data))
-      .catch((err) => console.error(err));
-  }, []);
-
-  const handleAddMedication = () => {
-    setPrescriptions([...prescriptions, { medicineId: '', dosage: '', frequency: '', days: '' }]);
-  };
-
-  const handlePrescriptionChange = (index, field, value) => {
-    const updated = [...prescriptions];
-    updated[index][field] = value;
-    setPrescriptions(updated);
-  };
-
-  const handleSaveConsultation = async (issuePrescription = false) => {
-    const payload = {
-      notes,
-      diagnosis,
-      prescriptions: issuePrescription ? prescriptions : [],
-      issueNow: issuePrescription
-    };
-
-    try {
-      const res = await fetch('/api/consultations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) {
-        alert(issuePrescription ? 'Consultation & Prescription Issued!' : 'Consultation Saved!');
-      }
-    } catch (err) {
-      console.error('Error saving consultation:', err);
+  const handleEndCall = () => {
+    if (window.confirm("Are you sure you want to end the consultation?")) {
+      navigate('/dashboard');
     }
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      {/* Patient Overview Header[cite: 1] */}
-      <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '6px', marginBottom: '20px', backgroundColor: '#f9f9f9' }}>
-        <h3>
-          [{patientInfo.name || 'Patient Name'}], [{patientInfo.age || 'Age'}], [{patientInfo.gender || 'Gender'}] | Appointment [{patientInfo.appointmentTime || 'Time'}]
-        </h3>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-        
-        {/* Clinical Inputs[cite: 1] */}
-        <div>
-          <h3>Consultation</h3>
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Consultation notes</label>
-            <textarea
-              rows="6"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="[Enter notes]"
-              style={{ width: '100%', padding: '8px' }}
-            />
+    <Layout>
+      <div className="consultation-container">
+        <div className="consultation-header">
+          <div>
+            <h1 className="consultation-title">Video Consultation</h1>
+            <p className="consultation-subtitle">Dr. Maya Chen • Primary Care Physician</p>
           </div>
-
-          <div style={{ marginBottom: '15px' }}>
-            <label style={{ display: 'block', marginBottom: '5px' }}>Clinical diagnosis</label>
-            <input
-              type="text"
-              value={diagnosis}
-              onChange={(e) => setDiagnosis(e.target.value)}
-              placeholder="[Enter diagnosis]"
-              style={{ width: '100%', padding: '8px' }}
-            />
+          <div className="call-status">
+            <span className="status-dot pulsing"></span>
+            Live (12:45)
           </div>
         </div>
 
-        {/* Digital Prescription Table[cite: 1] */}
-        <div>
-          <h3>Digital prescription</h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ccc' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#f4f4f4' }}>
-                <th style={{ padding: '8px', border: '1px solid #ccc' }}>Medication</th>
-                <th style={{ padding: '8px', border: '1px solid #ccc' }}>Dosage</th>
-                <th style={{ padding: '8px', border: '1px solid #ccc' }}>Frequency</th>
-                <th style={{ padding: '8px', border: '1px solid #ccc' }}>Days</th>
-              </tr>
-            </thead>
-            <tbody>
-              {prescriptions.map((item, index) => (
-                <tr key={index}>
-                  <td style={{ padding: '5px', border: '1px solid #ccc' }}>
-                    <select
-                      value={item.medicineId}
-                      onChange={(e) => handlePrescriptionChange(index, 'medicineId', e.target.value)}
-                      style={{ width: '100%' }}
-                    >
-                      <option value="">[Select]</option>
-                      {pharmacyItems.map((med) => (
-                        <option key={med.id} value={med.id}>{med.medicineName}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td style={{ padding: '5px', border: '1px solid #ccc' }}>
-                    <input
-                      type="text"
-                      value={item.dosage}
-                      onChange={(e) => handlePrescriptionChange(index, 'dosage', e.target.value)}
-                      style={{ width: '90%' }}
-                    />
-                  </td>
-                  <td style={{ padding: '5px', border: '1px solid #ccc' }}>
-                    <input
-                      type="text"
-                      value={item.frequency}
-                      onChange={(e) => handlePrescriptionChange(index, 'frequency', e.target.value)}
-                      style={{ width: '90%' }}
-                    />
-                  </td>
-                  <td style={{ padding: '5px', border: '1px solid #ccc' }}>
-                    <input
-                      type="number"
-                      value={item.days}
-                      onChange={(e) => handlePrescriptionChange(index, 'days', e.target.value)}
-                      style={{ width: '90%' }}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="consultation-layout">
+          {/* Main Video Area */}
+          <div className="video-section">
+            <div className="main-video-feed">
+              {/* Placeholder for Doctor's Video */}
+              <div className="video-placeholder doctor-video">
+                <img src="https://i.pravatar.cc/300?img=47" alt="Dr. Maya Chen" className="doctor-avatar-large" />
+                <span className="participant-name">Dr. Maya Chen</span>
+              </div>
+              
+              {/* Patient's Picture-in-Picture */}
+              <div className={`pip-video ${isVideoOff ? 'video-off' : ''}`}>
+                {isVideoOff ? (
+                  <div className="avatar-fallback">AH</div>
+                ) : (
+                  <div className="camera-active-placeholder">You</div>
+                )}
+              </div>
+            </div>
 
-          <button
-            onClick={handleAddMedication}
-            style={{ marginTop: '10px', padding: '6px 12px' }}
-          >
-            Add medication
-          </button>
+            {/* Video Controls */}
+            <div className="video-controls">
+              <button 
+                className={`control-btn ${isMuted ? 'danger-active' : ''}`}
+                onClick={() => setIsMuted(!isMuted)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  {isMuted ? (
+                    <path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
+                  ) : (
+                    <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                  )}
+                </svg>
+              </button>
+              
+              <button 
+                className={`control-btn ${isVideoOff ? 'danger-active' : ''}`}
+                onClick={() => setIsVideoOff(!isVideoOff)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  {isVideoOff ? (
+                    <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10l-4-3v-.34z"/>
+                  ) : (
+                    <path d="M23 7l-7 5 7 5V7zM1 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H1a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>
+                  )}
+                </svg>
+              </button>
+
+              <button className="control-btn end-call-btn" onClick={handleEndCall}>
+                End Call
+              </button>
+            </div>
+          </div>
+
+          {/* Side Panel for Chat or Notes */}
+          <div className="chat-section">
+            <div className="chat-header">
+              <h3>Chat</h3>
+            </div>
+            <div className="chat-messages">
+              <div className="message received">
+                <span className="sender">Dr. Maya Chen</span>
+                <p>Hello Amelia, I'm reviewing your chart now. How are you feeling today?</p>
+                <span className="timestamp">9:31 AM</span>
+              </div>
+              <div className="message sent">
+                <p>Hi Dr. Chen. I'm feeling a bit better, but still have a slight cough.</p>
+                <span className="timestamp">9:32 AM</span>
+              </div>
+            </div>
+            <div className="chat-input-area">
+              <input type="text" placeholder="Type a message..." className="chat-input" />
+              <button className="send-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
-
       </div>
-
-      {/* Action Footer[cite: 1] */}
-      <div style={{ marginTop: '30px', display: 'flex', gap: '15px' }}>
-        <button
-          onClick={() => handleSaveConsultation(false)}
-          style={{ padding: '10px 20px', backgroundColor: '#2b5876', color: '#fff', border: 'none', borderRadius: '4px' }}
-        >
-          Save consultation
-        </button>
-        <button
-          onClick={() => handleSaveConsultation(true)}
-          style={{ padding: '10px 20px', backgroundColor: '#1d4ed8', color: '#fff', border: 'none', borderRadius: '4px' }}
-        >
-          Issue prescription
-        </button>
-        <button
-          onClick={() => { setNotes(''); setDiagnosis(''); }}
-          style={{ padding: '10px 20px', backgroundColor: '#fff', border: '1px solid #ccc', borderRadius: '4px' }}
-        >
-          Discard
-        </button>
-      </div>
-    </div>
+    </Layout>
   );
 }

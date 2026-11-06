@@ -1,0 +1,312 @@
+/* Header Section */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+
+.subtitle-green {
+  font-size: 11px;
+  font-weight: 700;
+  color: #007a5a;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.greeting-title {
+  font-size: 40px;
+  font-weight: 400;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.greeting-sub {
+  font-size: 16px;
+  color: #666;
+  margin: 0;
+}
+
+.book-appt-btn {
+  background-color: #007a5a;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.2s;
+}
+
+.book-appt-btn:hover {
+  background-color: #006046;
+}
+
+/* Grid Layout */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 24px;
+}
+
+/* Shared Card Styles */
+.dash-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.card-top h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 400;
+  color: #1a1a1a;
+}
+
+.text-link {
+  color: #007a5a;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Next Appointment Card */
+.card-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  color: #007a5a;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.status-badge {
+  background-color: #e6f2ef;
+  color: #007a5a;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.appt-title {
+  font-size: 22px;
+  font-weight: 400;
+  color: #1a1a1a;
+  margin: 0 0 24px 0;
+}
+
+.appt-details-box {
+  background-color: #f8f9fa;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.date-block {
+  background-color: #007a5a;
+  color: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+}
+
+.date-day {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.date-month {
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.time-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #4a4a4a;
+  font-size: 14px;
+}
+
+.join-visit-btn {
+  background-color: #007a5a;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Care Team Card */
+.provider-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.provider-avatar img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.provider-info {
+  flex: 1;
+}
+
+.provider-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+  color: #1a1a1a;
+}
+
+.provider-role {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.provider-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #007a5a;
+  border-radius: 50%;
+}
+
+.message-btn {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Health Snapshot Card */
+.metrics-grid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.metric-value {
+  font-size: 32px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.unit {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.metric-context {
+  font-size: 12px;
+  color: #007a5a;
+}
+
+.metric-divider {
+  width: 1px;
+  height: 60px;
+  background-color: #f0f0f0;
+}
+
+/* Tasks Card */
+.item-count {
+  font-size: 18px;
+  color: #1a1a1a;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: #4a4a4a;
+  margin-top: 2px;
+}
+
+.task-text h4 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: #1a1a1a;
+}
+
+.task-text p {
+  margin: 0;
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.task-divider {
+  border: none;
+  border-top: 1px solid #f0f0f0;
+  margin: 16px 0;
+}

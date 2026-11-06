@@ -1,0 +1,235 @@
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background-color: #ffffff;
+  border-right: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden; /* Prevents outer sidebar from overflowing */
+}
+
+/* Header & Brand */
+.sidebar-header {
+  margin-bottom: 24px;
+  flex-shrink: 0; /* Keeps header pinned at top */
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background-color: #007a5a;
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.brand-logo h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
+}
+
+.workspace-dropdown {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  gap: 12px;
+}
+
+.workspace-icon {
+  width: 36px;
+  height: 36px;
+  background-color: #e6f2ef;
+  color: #007a5a;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.workspace-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.workspace-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #8c8c8c;
+  letter-spacing: 0.5px;
+}
+
+.workspace-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Scrollable Menu Section */
+.sidebar-menu {
+  flex: 1;
+  overflow-y: auto; /* Enables vertical scrolling within menu */
+  padding-right: 4px; /* Space for scrollbar */
+}
+
+/* Custom Sleek Scrollbar */
+.sidebar-menu::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+.menu-heading {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a0a0a0;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+  display: block;
+  padding-left: 12px;
+}
+
+.menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-item {
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #4a4a4a;
+}
+
+.menu-item:hover {
+  background-color: #f8f9fa;
+}
+
+.menu-item.active {
+  background-color: #e6f2ef;
+  color: #007a5a;
+}
+
+.menu-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menu-text {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.menu-item.active .menu-text {
+  font-weight: 600;
+}
+
+.menu-badge {
+  background-color: #007a5a;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  box-sizing: border-box;
+}
+
+/* Footer Profile */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0; /* Keeps profile footer pinned at bottom */
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background-color: #e6f2ef;
+  color: #007a5a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.sign-out-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  padding-left: 12px;
+}
+
+.sign-out-btn:hover {
+  text-decoration: underline;
+}

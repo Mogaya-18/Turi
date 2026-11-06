@@ -1,0 +1,181 @@
+.booking-container {
+  max-width: 1000px;
+  width: 100%;
+}
+
+.booking-title {
+  font-size: 32px;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 32px 0;
+  letter-spacing: -0.5px;
+}
+
+.panels-wrapper {
+  display: flex;
+  gap: 24px;
+  align-items: stretch;
+}
+
+.booking-panel {
+  flex: 1;
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.booking-panel.gray-bg {
+  flex: 1.5;
+  background-color: #f8f9fa;
+}
+
+.panel-heading {
+  margin: 0 0 24px 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+/* Form Styles */
+.form-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.form-group select,
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  font-size: 15px;
+  color: #1a1a1a;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group select:focus,
+.form-group input:focus {
+  border-color: #007a5a;
+}
+
+.form-group select:disabled {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Slots Grid */
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.empty-slots-msg {
+  grid-column: 1 / -1;
+  color: #8c8c8c;
+  font-size: 15px;
+  padding: 20px 0;
+}
+
+.slot-btn {
+  padding: 12px 10px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+}
+
+.slot-btn:hover:not(:disabled) {
+  border-color: #007a5a;
+  color: #007a5a;
+}
+
+.slot-btn.selected {
+  background-color: #e6f2ef;
+  border-color: #007a5a;
+  color: #007a5a;
+}
+
+.slot-btn:disabled {
+  border: 1px dashed #d1d5db;
+  color: #a0a0a0;
+  background-color: transparent;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+.slots-helper-text {
+  font-size: 13px;
+  color: #8c8c8c;
+  margin-bottom: 32px;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.confirm-btn {
+  background-color: #007a5a;
+  color: #fff;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  flex: 1 1 auto;
+}
+
+.confirm-btn:hover {
+  background-color: #006046;
+}
+
+.cancel-btn {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid #d1d5db;
+  padding: 14px 24px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  flex: 1 1 auto;
+}
+
+.cancel-btn:hover {
+  background-color: #f8f9fa;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+  .panels-wrapper {
+    flex-direction: column;
+  }
+}

@@ -1,290 +1,162 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Layout from './Layout/Layout';
+import './Dashboard.css';
 
 export default function Dashboard() {
-  const [data, setData] = useState(null);
-  const [refillStatuses, setRefillStatuses] = useState({});
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Fetch dashboard data from our Node backend
-    fetch('/api/patient/dashboard')
-      .then((res) => res.json())
-      .then((fetchedData) => setData(fetchedData))
-      .catch((err) => console.error("Error fetching dashboard:", err));
-  }, []);
-
-  // Button Handlers
-  const handleLogOut = () => navigate('/login');
-  
-  const handleBookNew = () => navigate('/book');
-  
-  const handleCancelAppointment = () => {
-    if(window.confirm("Are you sure you want to cancel this appointment?")) {
-      // In a real app, send DELETE request to backend here
-      setData(prev => ({ ...prev, upcomingAppointment: null }));
-      alert("Appointment cancelled.");
-    }
-  };
-
-  const handleRequestRefill = async (prescriptionId) => {
-    try {
-      const res = await fetch(`/api/prescriptions/${prescriptionId}/refill`, { method: 'POST' });
-      if (res.ok) {
-        setRefillStatuses(prev => ({ ...prev, [prescriptionId]: 'Requested' }));
-      }
-    } catch (err) {
-      console.error("Refill error:", err);
-    }
-  };
-
-  const handleViewInvoice = () => {
-    // Navigate to the generic invoice route we created earlier
-    navigate('/invoice/1');
-  };
-
-  if (!data) return <div style={{ padding: '20px' }}>Loading dashboard...</div>;
-
   return (
-    <>
-      <style>
-        {`
-          .dashboard-container {
-            font-family: sans-serif;
-            color: #333;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 15px 40px 15px;
-          }
-          /* Navbar */
-          .nav-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 2px solid #333;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-          }
-          .nav-left {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-          }
-          .nav-logo { margin: 0; font-size: 20px; font-weight: bold; }
-          .nav-links {
-            display: flex;
-            gap: 15px;
-            color: #555;
-            font-size: 14px;
-            flex-wrap: wrap;
-          }
-          .nav-link { cursor: pointer; }
-          .nav-link.active { font-weight: bold; color: #000; }
-          
-          /* Header Section */
-          .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 15px;
-          }
-          .welcome-text { font-size: 28px; margin: 0; }
-          .book-btn {
-            background-color: #386386;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-          }
-          .book-btn:hover { background-color: #2c4d68; }
-          
-          /* Cards Section */
-          .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-          }
-          .card {
-            border: 1px solid #333;
-            border-radius: 6px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            display: flex;
-            flex-direction: column;
-          }
-          .card h3 { margin: 0 0 15px 0; font-size: 16px; }
-          .card-content { flex-grow: 1; font-size: 14px; color: #333; line-height: 1.5; }
-          
-          /* Outline Buttons */
-          .outline-btn {
-            background-color: transparent;
-            color: #386386;
-            border: 1px solid #386386;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            margin-top: 15px;
-            margin-right: 10px;
-            transition: background-color 0.2s;
-          }
-          .outline-btn:hover:not(:disabled) { background-color: #e0eaf5; }
-          .outline-btn:disabled { border-color: #aaa; color: #aaa; cursor: not-allowed; }
-          
-          /* Table Section */
-          .table-title { font-size: 18px; margin-bottom: 15px; font-weight: bold; }
-          .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-          }
-          .history-table th, .history-table td {
-            border: 1px solid #ccc;
-            padding: 12px 15px;
-            text-align: left;
-          }
-          .history-table th { background-color: #fff; font-weight: bold; }
-          .view-link {
-            color: #333;
-            text-decoration: underline;
-            cursor: pointer;
-          }
-        `}
-      </style>
-
-      <div className="dashboard-container">
-        {/* Navigation Bar */}
-        <nav className="nav-bar">
-          <div className="nav-left">
-            <h2 className="nav-logo">Turi</h2>
-            <div className="nav-links">
-              <span className="nav-link active">Dashboard</span>
-              <span className="nav-link" onClick={() => navigate('/book')}>Appointments</span>
-              <span className="nav-link">Records</span>
-              <span className="nav-link">Prescriptions</span>
-              <span className="nav-link">Billing</span>
-            </div>
-          </div>
-          <div style={{ fontSize: '14px', cursor: 'pointer', color: '#555' }} onClick={handleLogOut}>
-            Log out
-          </div>
-        </nav>
-
-        {/* Header */}
-        <div className="header-section">
-          <h1 className="welcome-text">Welcome, {data.patientName}</h1>
-          <button className="book-btn" onClick={handleBookNew}>Book new appointment</button>
+    <Layout>
+      {/* Welcome Header Section */}
+      <div className="dashboard-header">
+        <div className="header-text">
+          <span className="subtitle-green">YOUR CARE, ALL IN ONE PLACE</span>
+          <h1 className="greeting-title">Good morning, Amelia.</h1>
+          <p className="greeting-sub">Here's what's happening with your care.</p>
         </div>
-
-        {/* Info Cards Grid */}
-        <div className="cards-grid">
-          
-          {/* 1. Upcoming Appointment Card */}
-          <div className="card">
-            <h3>Upcoming appointment</h3>
-            <div className="card-content">
-              {data.upcomingAppointment ? (
-                <>
-                  <div>{data.upcomingAppointment.date} at {data.upcomingAppointment.time}</div>
-                  <div>Dr. {data.upcomingAppointment.doctorName}, {data.upcomingAppointment.specialization}</div>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button className="outline-btn" onClick={handleBookNew}>Reschedule</button>
-                    <button className="outline-btn" onClick={handleCancelAppointment}>Cancel</button>
-                  </div>
-                </>
-              ) : (
-                <div style={{ color: '#666', marginTop: '10px' }}>No upcoming appointments.</div>
-              )}
-            </div>
-          </div>
-
-          {/* 2. Active Prescriptions Card */}
-          <div className="card">
-            <h3>Active prescriptions</h3>
-            <div className="card-content">
-              {data.activePrescriptions && data.activePrescriptions.length > 0 ? (
-                data.activePrescriptions.map(rx => (
-                  <div key={rx.id} style={{ marginBottom: '15px' }}>
-                    <div>{rx.medicineName}, {rx.dosageInstructions}</div>
-                    <button 
-                      className="outline-btn"
-                      onClick={() => handleRequestRefill(rx.id)}
-                      disabled={refillStatuses[rx.id] === 'Requested'}
-                    >
-                      {refillStatuses[rx.id] === 'Requested' ? 'Refill Requested' : 'Request refill'}
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <div style={{ color: '#666' }}>No active prescriptions.</div>
-              )}
-            </div>
-          </div>
-
-          {/* 3. Billing Card */}
-          <div className="card">
-            <h3>Billing</h3>
-            <div className="card-content">
-              {data.billing ? (
-                <>
-                  <div>{data.billing.date}: ${data.billing.amount.toFixed(2)}</div>
-                  <div>Status: {data.billing.status}</div>
-                  <button className="outline-btn" onClick={handleViewInvoice}>View details</button>
-                </>
-              ) : (
-                <div style={{ color: '#666' }}>No recent billing activity.</div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Medical History Table */}
-        <h2 className="table-title">Medical history and consultation notes</h2>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="history-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Doctor</th>
-                <th>Diagnosis</th>
-                <th>Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.medicalHistory && data.medicalHistory.length > 0 ? (
-                data.medicalHistory.map((history, idx) => (
-                  <tr key={idx}>
-                    <td>{history.date}</td>
-                    <td>{history.doctor}</td>
-                    <td>{history.diagnosis}</td>
-                    <td>
-                      <span 
-                        className="view-link"
-                        onClick={() => alert(`Consultation Notes:\n${history.notes}`)}
-                      >
-                        View
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="4" style={{ textAlign: 'center', color: '#666' }}>No past records found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <button 
+          className="book-appt-btn" 
+          onClick={() => navigate('/book-appointment')}
+        >
+          Book appointment
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
       </div>
-    </>
+
+      {/* Main Grid Layout */}
+      <div className="dashboard-grid">
+        
+        {/* Card 1: Next Appointment */}
+        <div className="dash-card next-appt-card">
+          <div className="card-top">
+            <span className="card-kicker">NEXT APPOINTMENT</span>
+            <span className="status-badge">Confirmed</span>
+          </div>
+          
+          <h2 className="appt-title">Video visit with Dr. Maya Chen</h2>
+          
+          <div className="appt-details-box">
+            <div className="date-block">
+              <span className="date-day">22</span>
+              <span className="date-month">MAY</span>
+            </div>
+            
+            <div className="time-block">
+              <div className="info-row">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#007a5a" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>9:30–10:00 AM</span>
+              </div>
+              <div className="info-row">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#007a5a" strokeWidth="2">
+                  <path d="M23 7l-7 5 7 5V7z"></path>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                </svg>
+                <span>Online consultation</span>
+              </div>
+            </div>
+
+            <button className="join-visit-btn">
+              Join visit
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M23 7l-7 5 7 5V7z"></path>
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Card 2: Your Care Team */}
+        <div className="dash-card care-team-card">
+          <div className="card-top">
+            <h3>Your care team</h3>
+            <span className="text-link">View all</span>
+          </div>
+          
+          <div className="provider-profile">
+            <div className="provider-avatar">
+               <img src="https://i.pravatar.cc/150?img=47" alt="Dr. Maya Chen" />
+            </div>
+            <div className="provider-info">
+              <h4>Dr. Maya Chen</h4>
+              <p className="provider-role">Primary care physician</p>
+              <div className="provider-status">
+                <span className="status-dot"></span>
+                <span>Usually replies in 1 hour</span>
+              </div>
+            </div>
+            <button className="message-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007a5a" strokeWidth="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Card 3: Health Snapshot */}
+        <div className="dash-card health-snapshot-card">
+          <div className="card-top">
+            <h3>Health snapshot</h3>
+            <span className="text-link">View records</span>
+          </div>
+          
+          <div className="metrics-grid">
+            <div className="metric-item">
+              <span className="metric-label">Blood pressure</span>
+              <div className="metric-value">118/76</div>
+              <span className="metric-context">Normal range</span>
+            </div>
+            <div className="metric-divider"></div>
+            
+            <div className="metric-item">
+              <span className="metric-label">Resting heart rate</span>
+              <div className="metric-value">68 <span className="unit">bpm</span></div>
+              <span className="metric-context">Last updated May 12</span>
+            </div>
+            <div className="metric-divider"></div>
+            
+            <div className="metric-item">
+              <span className="metric-label">Next checkup</span>
+              <div className="metric-value">6 <span className="unit">months</span></div>
+              <span className="metric-context">November 2025</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: For You (Tasks) */}
+        <div className="dash-card tasks-card">
+          <div className="card-top">
+            <h3>For you</h3>
+            <span className="item-count">2 items</span>
+          </div>
+          
+          <div className="task-list">
+            <div className="task-item">
+              <input type="checkbox" className="task-checkbox" />
+              <div className="task-text">
+                <h4>Complete your pre-visit form</h4>
+                <p>Due before May 22</p>
+              </div>
+            </div>
+            
+            <hr className="task-divider" />
+            
+            <div className="task-item">
+              <input type="checkbox" className="task-checkbox" />
+              <div className="task-text">
+                <h4>Upload insurance card</h4>
+                <p>Takes about 2 minutes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </Layout>
   );
 }

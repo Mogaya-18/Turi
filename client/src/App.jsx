@@ -1,8 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-// Admin & Modular Routes
-import { adminRoutes } from "./Admin/Adminroutes";
-
 // Auth Components
 import Login from "./Login/Login";
 import Register from "./Login/Register";
@@ -10,30 +7,39 @@ import Register from "./Login/Register";
 // User / Patient Components
 import Dashboard from "./User/Dashboard";
 import BookAppointment from "./User/BookAppointment";
+import Appointments from "./User/Appointments";
+import HealthRecords from "./User/HealthRecords";
 import Consultation from "./User/Consultation";
-import Profile from "./User/Profile";
 import Invoice from "./User/Invoice";
+import Profile from "./User/Profile";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Admin Modular Routes */}
-        {adminRoutes}
-
-        {/* Auth Routes */}
+        {/* Authentication Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* User / Patient Routes */}
+        {/* Patient Portal Main Routes */}
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/book" element={<BookAppointment />} />
+        <Route path="/book-appointment" element={<BookAppointment />} />
+        <Route path="/appointments" element={<Appointments />} />
         <Route path="/consultation" element={<Consultation />} />
+        <Route path="/records" element={<HealthRecords />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/invoice/:id" element={<Invoice />} />
 
-        {/* Default Route: Launch directly to Login */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* Billing & Invoice Routes */}
+        <Route path="/invoices" element={<Invoice />} />
+        <Route path="/invoices/:id" element={<Invoice />} />
+
+        {/* Messages & Settings Aliases */}
+        <Route path="/messages" element={<Appointments />} /> {/* Temporary route pointing to empty state prototype */}
+        <Route path="/settings" element={<Profile />} />
+
+        {/* Fallbacks */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );

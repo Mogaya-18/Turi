@@ -1,48 +1,160 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Layout from './Layout/Layout';
+import './Profile.css';
 
 export default function Profile() {
-  const [profile, setProfile] = useState({ fullName: '', email: '', phone: '' });
+  const [profile, setProfile] = useState({
+    fullName: 'Amelia Hart',
+    email: 'amelia.hart@example.com',
+    phone: '+1 (555) 234-5678',
+    dob: '1992-05-14',
+    bloodType: 'A+',
+    allergies: 'Penicillin, Peanuts',
+    emergencyContact: 'John Hart (Spouse) - +1 (555) 987-6543'
+  });
 
-  useEffect(() => {
-    fetch('/api/user/profile')
-      .then(res => res.json())
-      .then(data => setProfile(data))
-      .catch(err => console.error(err));
-  }, []);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({ ...profile });
 
-  const handleUpdate = async (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(profile)
-      });
-      if (res.ok) alert('Profile updated successfully!');
-    } catch (err) {
-      console.error(err);
-    }
+    setProfile({ ...formData });
+    setIsEditing(false);
+    alert('Profile updated successfully!');
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Manage Profile</h2>
-      <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '400px' }}>
-        <label>Full Name
-          <input type="text" value={profile.fullName} disabled style={{ width: '100%', padding: '8px' }} />
-        </label>
-        <label>Email
-          <input type="email" value={profile.email} disabled style={{ width: '100%', padding: '8px' }} />
-        </label>
-        <label>Phone Number
-          <input type="text" value={profile.phone} 
-            onChange={(e) => setProfile({...profile, phone: e.target.value})} style={{ width: '100%', padding: '8px' }} />
-        </label>
-        <button type="submit" style={{ padding: '10px', backgroundColor: '#2b5876', color: '#fff' }}>Save Changes</button>
-      </form>
-      <div style={{ marginTop: '20px' }}>
-        <a href="/dashboard">Back to Dashboard</a>
+    <Layout>
+      <div className="profile-container">
+        <div className="profile-header">
+          <div>
+            <h1 className="profile-title">Patient Profile</h1>
+            <p className="profile-subtitle">Manage your personal information and health details</p>
+          </div>
+          {!isEditing ? (
+            <button className="edit-btn" onClick={() => setIsEditing(true)}>
+              Edit Profile
+            </button>
+          ) : (
+            <button className="cancel-edit-btn" onClick={() => { setFormData({ ...profile }); setIsEditing(false); }}>
+              Cancel
+            </button>
+          )}
+        </div>
+
+        <div className="profile-card">
+          <div className="profile-hero">
+            <div className="profile-avatar-large">AH</div>
+            <div className="profile-hero-info">
+              <h2>{profile.fullName}</h2>
+              <span className="patient-id-tag">Patient ID: #PR-4092</span>
+            </div>
+          </div>
+
+          <form onSubmit={handleSave}>
+            <div className="profile-section">
+              <h3 className="section-title">Personal Details</h3>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Full Name</label>
+                  <input 
+                    type="text" 
+                    name="fullName" 
+                    value={formData.fullName} 
+                    onChange={handleChange} 
+                    disabled={!isEditing} 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Email Address</label>
+                  <input 
+                    type="email" 
+                    name="email" 
+                    value={formData.email} 
+                    onChange={handleChange} 
+                    disabled={!isEditing} 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Phone Number</label>
+                  <input 
+                    type="tel" 
+                    name="phone" 
+                    value={formData.phone} 
+                    onChange={handleChange} 
+                    disabled={!isEditing} 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Date of Birth</label>
+                  <input 
+                    type="date" 
+                    name="dob" 
+                    value={formData.dob} 
+                    onChange={handleChange} 
+                    disabled={!isEditing} 
+                  />
+                </div>
+              </div>
+            </div>
+
+            <hr className="profile-divider" />
+
+            <div className="profile-section">
+              <h3 className="section-title">Medical Information</h3>
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Blood Type</label>
+                  <input 
+                    type="text" 
+                    name="bloodType" 
+                    value={formData.bloodType} 
+                    onChange={handleChange} 
+                    disabled={!isEditing} 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Known Allergies</label>
+                  <input 
+                    type="text" 
+                    name="allergies" 
+                    value={formData.allergies} 
+                    onChange={handleChange} 
+                    disabled={!isEditing} 
+                  />
+                </div>
+              </div>
+            </div>
+
+            <hr className="profile-divider" />
+
+            <div className="profile-section">
+              <h3 className="section-title">Emergency Contact</h3>
+              <div className="form-group full-width">
+                <label>Contact Info</label>
+                <input 
+                  type="text" 
+                  name="emergencyContact" 
+                  value={formData.emergencyContact} 
+                  onChange={handleChange} 
+                  disabled={!isEditing} 
+                />
+              </div>
+            </div>
+
+            {isEditing && (
+              <div className="form-actions">
+                <button type="submit" className="save-btn">Save Changes</button>
+              </div>
+            )}
+          </form>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }

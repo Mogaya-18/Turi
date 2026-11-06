@@ -1,208 +1,209 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './Register.css';
 
 export default function Register() {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    password: "",
-    role: "patient",
-    employeeCode: "",
-  });
-
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Dynamic trigger for Employee Code requirement
-  const handleRoleChange = (e) => {
-    const selectedRole = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      role: selectedRole,
-      employeeCode: selectedRole === "patient" ? "" : prev.employeeCode,
-    }));
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    password: '',
+    role: 'Patient',
+    roleSpecificField: ''
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      // 1. Verify Employee Code for Admin and Doctor roles
-      if (formData.role === "admin" || formData.role === "doctor") {
-        const { data: codeData, error: codeErr } = await supabase
-          .from("employee_codes")
-          .select("*")
-          .eq("code", formData.employeeCode.trim())
-          .eq("assigned_role", formData.role)
-          .single();
-
-        if (codeErr || !codeData) {
-          alert(`Invalid Employee Code for the role '${formData.role}'.`);
-          setLoading(false);
-          return;
-        }
-
-        if (codeData.is_used) {
-          alert("This Employee Code has already been used.");
-          setLoading(false);
-          return;
-        }
-      }
-
-      // 2. Sign up user with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-            phone: formData.phone,
-            role: formData.role,
-          },
-        },
-      });
-
-      if (authError) {
-        alert(`Registration failed: ${authError.message}`);
-        setLoading(false);
-        return;
-      }
-
-      // 3. Insert record into public.profiles table
-      if (authData?.user) {
-        // 4. Mark Employee Code as used if applicable
-        if (formData.role === "admin" || formData.role === "doctor") {
-          await supabase
-            .from("employee_codes")
-            .update({ is_used: true })
-            .eq("code", formData.employeeCode.trim());
-        }
-      }
-
-      alert("Registration successful! Please log in.");
-      navigate("/login");
-    } catch (err) {
-      console.error("Unexpected Registration Error:", err);
-      alert("An error occurred during registration.");
-    } finally {
-      setLoading(false);
-    }
+    alert(`Account registered successfully for ${formData.fullName} as a ${formData.role}!`);
+    navigate('/login');
   };
-
-  const isEmployeeRole =
-    formData.role === "admin" || formData.role === "doctor";
 
   return (
-    <div
-      style={{
-        maxWidth: "400px",
-        margin: "40px auto",
-        padding: "20px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-    >
-      <h2>Account Registration</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: "flex", flexDirection: "column", gap: "15px" }}
-      >
-        {/* Full Name */}
-        <input
-          type="text"
-          placeholder="Full Name"
-          required
-          value={formData.fullName}
-          onChange={(e) =>
-            setFormData({ ...formData, fullName: e.target.value })
-          }
-          style={{ padding: "8px" }}
-        />
+    <div className="register-wrapper">
+      {/* Left Brand Feature Panel */}
+      <div className="register-left-panel">
+        <div className="left-panel-content">
+          <div className="kicker-container">
+            <span className="kicker-line"></span>
+            <span className="kicker-text">CARE, CONNECTED</span>
+          </div>
 
-        {/* Email */}
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          style={{ padding: "8px" }}
-        />
+          <h1 className="hero-heading">
+            Join Cura <br />
+            and manage <br />
+            <span className="italic-text">your health seamlessly.</span>
+          </h1>
 
-        {/* Phone */}
-        <input
-          type="text"
-          placeholder="Phone Number"
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-          style={{ padding: "8px" }}
-        />
+          <ul className="feature-checklist">
+            <li>
+              <div className="check-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <span>Easy appointment management</span>
+            </li>
+            <li>
+              <div className="check-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <span>Private messages with your care team</span>
+            </li>
+            <li>
+              <div className="check-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </div>
+              <span>Secure access to health records</span>
+            </li>
+          </ul>
+        </div>
 
-        {/* Password */}
-        <input
-          type="password"
-          placeholder="Password"
-          required
-          value={formData.password}
-          onChange={(e) =>
-            setFormData({ ...formData, password: e.target.value })
-          }
-          style={{ padding: "8px" }}
-        />
+        {/* Decorative background overlay circles */}
+        <div className="bg-glow-circle circle-1"></div>
+        <div className="bg-glow-circle circle-2"></div>
+      </div>
 
-        {/* Category Dropdown */}
-        <select
-          value={formData.role}
-          onChange={handleRoleChange}
-          required
-          style={{ padding: "8px" }}
-        >
-          <option value="patient">Patient</option>
-          <option value="doctor">Doctor</option>
-          <option value="admin">Admin</option>
-        </select>
+      {/* Right Form Panel */}
+      <div className="register-right-panel">
+        <div className="register-form-card">
+          <span className="form-kicker">GET STARTED</span>
+          <h2 className="form-title">Account Registration</h2>
+          <p className="form-subtitle">Fill in your details to create your Cura account.</p>
 
-        {/* Employee Code Input */}
-        <input
-          type="text"
-          placeholder={
-            isEmployeeRole ? "Enter Employee Code" : "N/A for Patients"
-          }
-          disabled={!isEmployeeRole}
-          required={isEmployeeRole}
-          value={formData.employeeCode}
-          onChange={(e) =>
-            setFormData({ ...formData, employeeCode: e.target.value })
-          }
-          style={{
-            padding: "8px",
-            backgroundColor: isEmployeeRole ? "#ffffff" : "#e9ecef",
-            cursor: isEmployeeRole ? "text" : "not-allowed",
-          }}
-        />
+          <form onSubmit={handleSubmit} className="auth-form">
+            {/* Full Name */}
+            <div className="input-group">
+              <label>Full Name</label>
+              <input
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                placeholder="Full Name"
+                required
+              />
+            </div>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: "10px",
-            backgroundColor: "#2b5876",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: loading ? "wait" : "pointer",
-          }}
-        >
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
-      <p style={{ marginTop: "10px" }}>
-        Already have an account? <a href="/login">Log in here</a>.
-      </p>
+            {/* Email */}
+            <div className="input-group">
+              <label>Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Email address"
+                required
+              />
+            </div>
+
+            {/* Phone Number */}
+            <div className="input-group">
+              <label>Phone Number</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Phone Number"
+                required
+              />
+            </div>
+
+            {/* Password */}
+            <div className="input-group">
+              <label>Password</label>
+              <div className="input-with-icon">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Password"
+                  required
+                />
+                <button
+                  type="button"
+                  className="eye-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Role Dropdown */}
+            <div className="input-group">
+              <label>Account Type</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="role-select"
+              >
+                <option value="Patient">Patient</option>
+                <option value="Doctor">Doctor</option>
+                <option value="Administrator">Administrator</option>
+              </select>
+            </div>
+
+            {/* Dynamic Role-Specific Field */}
+            <div className="input-group">
+              <label>
+                {formData.role === 'Patient'
+                  ? 'Additional Details'
+                  : formData.role === 'Doctor'
+                  ? 'Medical License / Specialization'
+                  : 'Department Code'}
+              </label>
+              <input
+                type="text"
+                name="roleSpecificField"
+                value={formData.role === 'Patient' ? '' : formData.roleSpecificField}
+                onChange={handleChange}
+                placeholder={
+                  formData.role === 'Patient'
+                    ? 'N/A for Patients'
+                    : formData.role === 'Doctor'
+                    ? 'e.g. Cardiology - MD-90412'
+                    : 'e.g. ADM-8023'
+                }
+                disabled={formData.role === 'Patient'}
+                className={formData.role === 'Patient' ? 'disabled-input' : ''}
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button type="submit" className="register-submit-btn">
+              Register
+            </button>
+          </form>
+
+          {/* Footer Link */}
+          <div className="login-redirect-footer">
+            <span>Already have an account? </span>
+            <a href="/login" onClick={(e) => { e.preventDefault(); navigate('/login'); }}>
+              Log in here.
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
