@@ -1,7 +1,10 @@
 export function PageHead({ title, children }) {
   return (
     <div className="page-head">
-      <h1>{title}</h1>
+      <div>
+        <div className="eyebrow">Clinic admin</div>
+        <h1>{title}</h1>
+      </div>
       {children}
     </div>
   );
