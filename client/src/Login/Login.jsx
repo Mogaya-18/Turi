@@ -130,7 +130,7 @@ export default function Login() {
       <div className="login-right-panel">
         <div className="login-form-card">
           <span className="form-kicker">WELCOME BACK</span>
-          <h2 className="form-title">Sign in to Cura</h2>
+          <h2 className="form-title">Sign in to Turi</h2>
           <p className="form-subtitle">Choose your workspace and enter your details.</p>
 
           {/* Error Message Display */}

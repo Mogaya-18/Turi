@@ -13,12 +13,15 @@ import Consultation from "./User/Consultation";
 import Invoice from "./User/Invoice";
 import Profile from "./User/Profile";
 import { adminRoutes } from "./Admin/Adminroutes";
-
+import DoctorDashboard from "./Doctor/DoctorDashboard";
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         {adminRoutes}
+        {/*Doctor routes  */}
+        <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+        <Route path="/doctor" element={<Navigate to="/doctor/dashboard" replace />} />
         {/* Authentication Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

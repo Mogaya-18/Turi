@@ -38,7 +38,7 @@ export default function Register() {
           </div>
 
           <h1 className="hero-heading">
-            Join Cura <br />
+            Join Turi <br />
             and manage <br />
             <span className="italic-text">your health seamlessly.</span>
           </h1>
@@ -81,7 +81,7 @@ export default function Register() {
         <div className="register-form-card">
           <span className="form-kicker">GET STARTED</span>
           <h2 className="form-title">Account Registration</h2>
-          <p className="form-subtitle">Fill in your details to create your Cura account.</p>
+          <p className="form-subtitle">Fill in your details to create your Turi account.</p>
 
           <form onSubmit={handleSubmit} className="auth-form">
             {/* Full Name */}

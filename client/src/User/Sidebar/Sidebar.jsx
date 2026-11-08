@@ -27,7 +27,7 @@ export default function Sidebar() {
           style={{ cursor: 'pointer' }}
         >
           <div className="logo-icon">+</div>
-          <h2>Cura.</h2>
+          <h2>Turi.</h2>
         </div>
         
         <div className="workspace-dropdown">
