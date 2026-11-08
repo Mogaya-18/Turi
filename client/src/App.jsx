@@ -12,11 +12,13 @@ import HealthRecords from "./User/HealthRecords";
 import Consultation from "./User/Consultation";
 import Invoice from "./User/Invoice";
 import Profile from "./User/Profile";
+import { adminRoutes } from "./Admin/Adminroutes";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {adminRoutes}
         {/* Authentication Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -38,8 +40,8 @@ export default function App() {
         <Route path="/settings" element={<Profile />} />
 
         {/* Fallbacks */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );

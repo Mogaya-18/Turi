@@ -8,12 +8,45 @@ app.use(cors());
 app.use(express.json());
 
 // --- MOCK DATABASE ---
+
+// In-Memory User Store (Pre-seeded with demo accounts)
+const users = [
+  {
+    id: 1,
+    fullName: "Amelia Hart",
+    email: "client@cura.demo",
+    phone: "555-0192",
+    password: "password123",
+    role: "Patient",
+    roleSpecificField: ""
+  },
+  {
+    id: 2,
+    fullName: "Dr. Maya Chen",
+    email: "doctor@cura.demo",
+    phone: "555-0193",
+    password: "password123",
+    role: "Doctor",
+    roleSpecificField: "Cardiology - MD-90412"
+  },
+  {
+    id: 3,
+    fullName: "System Admin",
+    email: "admin@cura.demo",
+    phone: "555-0194",
+    password: "password123",
+    role: "Administrator",
+    roleSpecificField: "ADM-8023"
+  }
+];
+
 const specializations = [
   "Cardiology",
   "Dermatology",
   "General Practice",
   "Pediatrics",
 ];
+
 const doctors = [
   { id: 1, fullName: "Alice Smith", specialization: "Cardiology" },
   { id: 2, fullName: "Bob Jones", specialization: "General Practice" },
@@ -28,15 +61,96 @@ let pharmacyInventory = [
 
 // --- API ROUTES ---
 
-// 0. HEALTH CHECK ROUTE (Fixes "Cannot GET /api/health")
+// 0. Health Check Route
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// 1. Patient Dashboard Data
+// 1. User Registration Route
+app.post("/api/auth/register", (req, res) => {
+  const { fullName, email, phone, password, role, roleSpecificField } = req.body || {};
+
+  if (!fullName || !email || !password) {
+    return res.status(400).json({ message: "Full Name, Email, and Password are required." });
+  }
+
+  // Check if user already exists
+  const existingUser = users.find(
+    (u) => u.email.toLowerCase() === email.toLowerCase()
+  );
+
+  if (existingUser) {
+    return res.status(409).json({ message: "An account with this email already exists." });
+  }
+
+  // Create new user object
+  const newUser = {
+    id: users.length + 1,
+    fullName,
+    email: email.toLowerCase(),
+    phone: phone || "",
+    password, // In production, hash this with bcrypt
+    role: role || "Patient",
+    roleSpecificField: roleSpecificField || ""
+  };
+
+  users.push(newUser);
+  console.log("New user registered successfully:", newUser.email);
+
+  res.status(201).json({ 
+    message: "User registered successfully", 
+    user: { id: newUser.id, email: newUser.email, role: newUser.role } 
+  });
+});
+
+// 2. User Authentication / Login Route
+app.post("/api/auth/login", (req, res) => {
+  const { email, password, role } = req.body || {};
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required." });
+  }
+
+  // Find user by email
+  const user = users.find(
+    (u) => u.email.toLowerCase() === email.toLowerCase()
+  );
+
+  // Validate user existence
+  if (!user) {
+    return res.status(401).json({ message: "No account found with this email." });
+  }
+
+  // Validate password match
+  if (user.password !== password) {
+    return res.status(401).json({ message: "Incorrect password. Please try again." });
+  }
+
+  // Validate role workspace match (case-insensitive)
+  if (role && user.role.toLowerCase() !== role.toLowerCase()) {
+    return res.status(403).json({ 
+      message: `Access denied. Account is registered as ${user.role}, not ${role}.` 
+    });
+  }
+
+  // Successful Login Response with mock token
+  res.json({
+    message: "Logged in successfully",
+    token: `mock-jwt-token-${user.id}-${Date.now()}`,
+    role: user.role,
+    user: {
+      id: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role
+    }
+  });
+});
+
+// 3. Patient Dashboard Data
 app.get("/api/patient/dashboard", (req, res) => {
   res.json({
-    patientName: "John Doe",
+    patientName: "Amelia Hart",
     upcomingAppointment: {
       date: "2026-11-02",
       time: "10:00",
@@ -63,31 +177,11 @@ app.get("/api/patient/dashboard", (req, res) => {
   });
 });
 
-// --- MOCK ROUTES FOR AUTH, PROFILE & INVOICE ---
-
-app.post("/api/auth/register", (req, res) => {
-  console.log("New user registered:", req.body?.email);
-  res.status(201).json({ message: "User registered" });
-});
-
-app.post("/api/auth/login", (req, res) => {
-  const { email } = req.body || {};
-
-  if (!email) {
-    return res.status(400).json({ message: "Email is required" });
-  }
-
-  if (email.includes("admin")) {
-    res.json({ role: "admin", message: "Logged in as Admin" });
-  } else {
-    res.json({ role: "Patient", message: "Logged in as Patient" });
-  }
-});
-
+// 4. User Profile Routes
 app.get("/api/user/profile", (req, res) => {
   res.json({
-    fullName: "John Doe",
-    email: "john@example.com",
+    fullName: "Amelia Hart",
+    email: "client@cura.demo",
     phone: "555-0192",
   });
 });
@@ -97,6 +191,7 @@ app.put("/api/user/profile", (req, res) => {
   res.json({ message: "Profile updated successfully" });
 });
 
+// 5. Billing & Invoices
 app.get("/api/billing/:id", (req, res) => {
   res.json({
     id: req.params.id,
@@ -111,19 +206,18 @@ app.get("/api/billing/:id", (req, res) => {
   });
 });
 
-// 2. Request Prescription Refill
+// 6. Prescription Refill
 app.post("/api/prescriptions/:id/refill", (req, res) => {
   const { id } = req.params;
   console.log(`Refill requested for prescription ID: ${id}`);
   res.json({ message: "Refill requested successfully." });
 });
 
-// 3. Get Doctor Specializations
+// 7. Doctors & Specializations
 app.get("/api/doctors/specializations", (req, res) => {
   res.json(specializations);
 });
 
-// 4. Get Doctors (filter by specialization)
 app.get("/api/doctors", (req, res) => {
   const spec = req.query.specialization;
   if (spec) {
@@ -133,7 +227,7 @@ app.get("/api/doctors", (req, res) => {
   }
 });
 
-// 5. Get Available Slots
+// 8. Appointment Slots & Booking
 app.get("/api/slots", (req, res) => {
   res.json([
     { id: 1, time: "09:00", isBooked: false },
@@ -144,7 +238,6 @@ app.get("/api/slots", (req, res) => {
   ]);
 });
 
-// 6. Book an Appointment
 app.post("/api/appointments/book", (req, res) => {
   const { slotId } = req.body || {};
 
@@ -156,30 +249,23 @@ app.post("/api/appointments/book", (req, res) => {
   res.json({ message: "Appointment booked successfully", slotId });
 });
 
-// 7. Get Current Consultation Data
+// 9. Consultations & Pharmacy
 app.get("/api/consultations/current", (req, res) => {
   res.json({
-    name: "John Doe",
+    name: "Amelia Hart",
     age: 34,
-    gender: "Male",
+    gender: "Female",
     appointmentTime: "10:00",
   });
 });
 
-// 8. Get Pharmacy Inventory
 app.get("/api/pharmacy/inventory", (req, res) => {
   res.json(pharmacyInventory);
 });
 
-// 9. Save Consultation / Issue Prescription
 app.post("/api/consultations", (req, res) => {
   const { notes, diagnosis, prescriptions, issueNow } = req.body || {};
-  console.log("Consultation Saved:", {
-    notes,
-    diagnosis,
-    prescriptions,
-    issueNow,
-  });
+  console.log("Consultation Saved:", { notes, diagnosis, prescriptions, issueNow });
   res.json({
     message: issueNow
       ? "Consultation saved and prescription issued."
@@ -191,7 +277,5 @@ app.post("/api/consultations", (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`\n[Turi Server] Running on http://localhost:${PORT}`);
-  console.log(
-    `[Turi Server] Listening for API requests from the React frontend...\n`,
-  );
+  console.log(`[Turi Server] Listening for API requests from the React frontend...\n`);
 });
