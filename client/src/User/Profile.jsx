@@ -1,155 +1,415 @@
-import React, { useState } from 'react';
-import Layout from './Layout/Layout';
-import './Profile.css';
+import React, { useState, useEffect } from "react";
+import Layout from "./Layout/Layout";
+import { supabase } from "../supabaseClient";
+import "./Profile.css";
 
 export default function Profile() {
-  const [profile, setProfile] = useState({
-    fullName: 'Amelia Hart',
-    email: 'amelia.hart@example.com',
-    phone: '+1 (555) 234-5678',
-    dob: '1992-05-14',
-    bloodType: 'A+',
-    allergies: 'Penicillin, Peanuts',
-    emergencyContact: 'John Hart (Spouse) - +1 (555) 987-6543'
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    full_name: "",
+    email: "",
+    phone: "",
+    date_of_birth: "",
+    blood_type: "",
+    allergies: "",
+    emergency_contact: "",
   });
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({ ...profile });
+  // Fetch logged-in user profile or fallback to first patient row
+  const fetchProfile = async () => {
+    setLoading(true);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    let query = supabase.from("profiles").select("*");
+    if (user) {
+      query = query.eq("id", user.id);
+    } else {
+      query = query.eq("role", "patient").limit(1);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error loading profile:", error);
+    } else if (data && data.length > 0) {
+      const p = data[0];
+      setProfile(p);
+      setFormData({
+        full_name: p.full_name || "",
+        email: p.email || "",
+        phone: p.phone || "",
+        date_of_birth: p.date_of_birth || "",
+        blood_type: p.blood_type || "",
+        allergies: p.allergies || "",
+        emergency_contact: p.emergency_contact || "",
+      });
+    }
+    setLoading(false);
   };
 
-  const handleSave = (e) => {
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async (e) => {
     e.preventDefault();
-    setProfile({ ...formData });
-    setIsEditing(false);
-    alert('Profile updated successfully!');
+    if (!profile?.id) return;
+
+    const { error } = await supabase
+      .from("profiles")
+      .update(formData)
+      .eq("id", profile.id);
+
+    if (error) {
+      alert("Failed to update profile: " + error.message);
+    } else {
+      setIsEditing(false);
+      fetchProfile();
+    }
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <p style={{ padding: "24px" }}>Loading profile...</p>
+      </Layout>
+    );
+  }
+
+  const getInitials = (name) => {
+    if (!name) return "PT";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
     <Layout>
-      <div className="profile-container">
-        <div className="profile-header">
+      <div style={{ maxWidth: "900px", width: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "24px",
+          }}
+        >
           <div>
-            <h1 className="profile-title">Patient Profile</h1>
-            <p className="profile-subtitle">Manage your personal information and health details</p>
+            <h1
+              style={{
+                fontSize: "28px",
+                margin: "0 0 6px 0",
+                fontWeight: "500",
+              }}
+            >
+              Patient Profile
+            </h1>
+            <p style={{ margin: 0, color: "#64748b", fontSize: "14px" }}>
+              Manage your personal information and health details
+            </p>
           </div>
-          {!isEditing ? (
-            <button className="edit-btn" onClick={() => setIsEditing(true)}>
-              Edit Profile
-            </button>
-          ) : (
-            <button className="cancel-edit-btn" onClick={() => { setFormData({ ...profile }); setIsEditing(false); }}>
-              Cancel
-            </button>
-          )}
+          <button
+            className="book-appt-btn"
+            style={{ borderRadius: "30px", padding: "10px 24px" }}
+            onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
+          >
+            {isEditing ? "Save Changes" : "Edit Profile"}
+          </button>
         </div>
 
-        <div className="profile-card">
-          <div className="profile-hero">
-            <div className="profile-avatar-large">AH</div>
-            <div className="profile-hero-info">
-              <h2>{profile.fullName}</h2>
-              <span className="patient-id-tag">Patient ID: #PR-4092</span>
+        <div className="dash-card" style={{ padding: "32px" }}>
+          {/* Avatar & Header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "16px",
+              marginBottom: "32px",
+            }}
+          >
+            <div
+              className="user-avatar"
+              style={{ width: "64px", height: "64px", fontSize: "22px" }}
+            >
+              {getInitials(profile?.full_name)}
+            </div>
+            <div>
+              <h2
+                style={{
+                  margin: "0 0 4px 0",
+                  fontSize: "22px",
+                  fontWeight: "500",
+                }}
+              >
+                {profile?.full_name || "Patient"}
+              </h2>
+              <span className="status-badge" style={{ fontSize: "12px" }}>
+                Patient ID: #{profile?.id ? profile.id.slice(0, 7) : "PR-4092"}
+              </span>
             </div>
           </div>
 
           <form onSubmit={handleSave}>
-            <div className="profile-section">
-              <h3 className="section-title">Personal Details</h3>
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Full Name</label>
-                  <input 
-                    type="text" 
-                    name="fullName" 
-                    value={formData.fullName} 
-                    onChange={handleChange} 
-                    disabled={!isEditing} 
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Email Address</label>
-                  <input 
-                    type="email" 
-                    name="email" 
-                    value={formData.email} 
-                    onChange={handleChange} 
-                    disabled={!isEditing} 
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Phone Number</label>
-                  <input 
-                    type="tel" 
-                    name="phone" 
-                    value={formData.phone} 
-                    onChange={handleChange} 
-                    disabled={!isEditing} 
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Date of Birth</label>
-                  <input 
-                    type="date" 
-                    name="dob" 
-                    value={formData.dob} 
-                    onChange={handleChange} 
-                    disabled={!isEditing} 
-                  />
-                </div>
+            {/* Personal Details */}
+            <h4
+              style={{
+                color: "#007a5a",
+                fontSize: "12px",
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+                marginBottom: "16px",
+              }}
+            >
+              PERSONAL DETAILS
+            </h4>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                gap: "16px",
+                marginBottom: "32px",
+              }}
+            >
+              <div>
+                <label
+                  style={{
+                    fontSize: "11px",
+                    color: "#64748b",
+                    fontWeight: "600",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
+                  FULL NAME
+                </label>
+                <input
+                  name="full_name"
+                  disabled={!isEditing}
+                  value={formData.full_name}
+                  onChange={handleChange}
+                  className="field"
+                  style={{ background: isEditing ? "#fff" : "#f8f9fa" }}
+                />
               </div>
-            </div>
-
-            <hr className="profile-divider" />
-
-            <div className="profile-section">
-              <h3 className="section-title">Medical Information</h3>
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Blood Type</label>
-                  <input 
-                    type="text" 
-                    name="bloodType" 
-                    value={formData.bloodType} 
-                    onChange={handleChange} 
-                    disabled={!isEditing} 
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Known Allergies</label>
-                  <input 
-                    type="text" 
-                    name="allergies" 
-                    value={formData.allergies} 
-                    onChange={handleChange} 
-                    disabled={!isEditing} 
-                  />
-                </div>
+              <div>
+                <label
+                  style={{
+                    fontSize: "11px",
+                    color: "#64748b",
+                    fontWeight: "600",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
+                  EMAIL ADDRESS
+                </label>
+                <input
+                  name="email"
+                  disabled={!isEditing}
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="field"
+                  style={{ background: isEditing ? "#fff" : "#f8f9fa" }}
+                />
               </div>
-            </div>
-
-            <hr className="profile-divider" />
-
-            <div className="profile-section">
-              <h3 className="section-title">Emergency Contact</h3>
-              <div className="form-group full-width">
-                <label>Contact Info</label>
-                <input 
-                  type="text" 
-                  name="emergencyContact" 
-                  value={formData.emergencyContact} 
-                  onChange={handleChange} 
-                  disabled={!isEditing} 
+              <div>
+                <label
+                  style={{
+                    fontSize: "11px",
+                    color: "#64748b",
+                    fontWeight: "600",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
+                  PHONE NUMBER
+                </label>
+                <input
+                  name="phone"
+                  disabled={!isEditing}
+                  placeholder="+1 (555) 234-5678"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="field"
+                  style={{ background: isEditing ? "#fff" : "#f8f9fa" }}
+                />
+              </div>
+              <div>
+                <label
+                  style={{
+                    fontSize: "11px",
+                    color: "#64748b",
+                    fontWeight: "600",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
+                  DATE OF BIRTH
+                </label>
+                <input
+                  name="date_of_birth"
+                  type="date"
+                  disabled={!isEditing}
+                  value={formData.date_of_birth}
+                  onChange={handleChange}
+                  className="field"
+                  style={{ background: isEditing ? "#fff" : "#f8f9fa" }}
                 />
               </div>
             </div>
 
+            <hr
+              style={{
+                border: "none",
+                borderTop: "1px solid #f0f0f0",
+                margin: "24px 0",
+              }}
+            />
+
+            {/* Medical Information */}
+            <h4
+              style={{
+                color: "#007a5a",
+                fontSize: "12px",
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+                marginBottom: "16px",
+              }}
+            >
+              MEDICAL INFORMATION
+            </h4>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "16px",
+                marginBottom: "32px",
+              }}
+            >
+              <div>
+                <label
+                  style={{
+                    fontSize: "11px",
+                    color: "#64748b",
+                    fontWeight: "600",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
+                  BLOOD TYPE
+                </label>
+                <input
+                  name="blood_type"
+                  disabled={!isEditing}
+                  placeholder="A+"
+                  value={formData.blood_type}
+                  onChange={handleChange}
+                  className="field"
+                  style={{ background: isEditing ? "#fff" : "#f8f9fa" }}
+                />
+              </div>
+              <div>
+                <label
+                  style={{
+                    fontSize: "11px",
+                    color: "#64748b",
+                    fontWeight: "600",
+                    display: "block",
+                    marginBottom: "6px",
+                  }}
+                >
+                  KNOWN ALLERGIES
+                </label>
+                <input
+                  name="allergies"
+                  disabled={!isEditing}
+                  placeholder="Penicillin, Peanuts"
+                  value={formData.allergies}
+                  onChange={handleChange}
+                  className="field"
+                  style={{ background: isEditing ? "#fff" : "#f8f9fa" }}
+                />
+              </div>
+            </div>
+
+            <hr
+              style={{
+                border: "none",
+                borderTop: "1px solid #f0f0f0",
+                margin: "24px 0",
+              }}
+            />
+
+            {/* Emergency Contact */}
+            <h4
+              style={{
+                color: "#007a5a",
+                fontSize: "12px",
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+                marginBottom: "16px",
+              }}
+            >
+              EMERGENCY CONTACT
+            </h4>
+            <div>
+              <label
+                style={{
+                  fontSize: "11px",
+                  color: "#64748b",
+                  fontWeight: "600",
+                  display: "block",
+                  marginBottom: "6px",
+                }}
+              >
+                CONTACT INFO
+              </label>
+              <input
+                name="emergency_contact"
+                disabled={!isEditing}
+                placeholder="John Hart (Spouse) - +1 (555) 987-6543"
+                value={formData.emergency_contact}
+                onChange={handleChange}
+                className="field"
+                style={{ background: isEditing ? "#fff" : "#f8f9fa" }}
+              />
+            </div>
+
             {isEditing && (
-              <div className="form-actions">
-                <button type="submit" className="save-btn">Save Changes</button>
+              <div
+                style={{
+                  marginTop: "24px",
+                  display: "flex",
+                  gap: "12px",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="confirm-btn"
+                  style={{ flex: "none" }}
+                >
+                  Save profile
+                </button>
               </div>
             )}
           </form>
