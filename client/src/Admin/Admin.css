@@ -304,6 +304,19 @@
   text-align: center;
   color: var(--muted);
 }
+/* Scrollable container for long Audit Log tables */
+.audit-table-scroll .table-wrap {
+  max-height: calc(100vh - 230px);
+  overflow-y: auto;
+  padding-top: 0;
+}
+.audit-table-scroll thead th {
+  position: sticky;
+  top: 0;
+  background-color: var(--card);
+  z-index: 2;
+  padding-top: 16px;
+}
 @media (max-width: 800px) {
   .admin {
     flex-direction: column;

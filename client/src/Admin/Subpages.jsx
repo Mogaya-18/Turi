@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { PageHead, DataTable, Badge } from "./components";
-import { auditSeed } from "./Mockdata";
 import { supabase } from "../supabaseClient";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -261,11 +260,9 @@ export function QueuePage() {
   const [selectedDoctor, setSelectedDoctor] = useState("All doctors");
   const [loading, setLoading] = useState(true);
 
-  // Fetch real system-wide appointments and doctor filter list from Supabase
   const fetchQueueData = async () => {
     setLoading(true);
 
-    // Fetch doctors for filter dropdown
     const { data: docData } = await supabase
       .from("profiles")
       .select("id, full_name")
@@ -275,7 +272,6 @@ export function QueuePage() {
       setDoctorsList(docData);
     }
 
-    // Fetch system-wide appointments
     const { data: apptData, error } = await supabase
       .from("appointments")
       .select("*")
@@ -291,7 +287,6 @@ export function QueuePage() {
     fetchQueueData();
   }, []);
 
-  // Update appointment status (Call in / Mark done)
   const updateStatus = async (id, newStatus) => {
     const { error } = await supabase
       .from("appointments")
@@ -305,7 +300,6 @@ export function QueuePage() {
     }
   };
 
-  // Filter queue by selected doctor
   const shown = appointments.filter((r) => {
     if (selectedDoctor === "All doctors") return true;
     return r.doctor_name === selectedDoctor || r.doctor_id === selectedDoctor;
@@ -704,35 +698,232 @@ export function ReportsPage() {
   );
 }
 
-/* ---------- Audit log (read-only) ---------- */
+/* ---------- Audit log (Live System-Wide Activity Feed from Supabase) ---------- */
+function formatAuditTime(isoString) {
+  if (!isoString) return "—";
+  const d = new Date(isoString);
+  if (Number.isNaN(d.getTime())) return String(isoString);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export function AuditPage() {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
-  const rows = auditSeed.filter((r) =>
-    Object.values(r).join(" ").toLowerCase().includes(q.toLowerCase()),
-  );
+  const [category, setCategory] = useState("All");
+
+  const fetchAuditLogs = async () => {
+    setLoading(true);
+
+    const [
+      { data: profiles },
+      { data: appointments },
+      { data: consultations },
+      { data: prescriptions },
+      { data: invoices },
+    ] = await Promise.all([
+      supabase.from("profiles").select("id, full_name, role, created_at"),
+      supabase
+        .from("appointments")
+        .select(
+          "id, patient_id, doctor_name, appointment_date, start_time, status, created_by, created_at",
+        ),
+      supabase
+        .from("consultations")
+        .select("id, patient_id, doctor_id, diagnosis, created_at"),
+      supabase
+        .from("prescriptions")
+        .select(
+          "id, patient_id, doctor_id, medicine_name, dosage, status, created_at",
+        ),
+      supabase
+        .from("invoices")
+        .select(
+          "id, invoice_number, patient_id, doctor_name, total_amount, status, payment_method, transaction_ref, paid_at, created_at",
+        ),
+    ]);
+
+    // Map user IDs to full names for readable audit entries
+    const userMap = {};
+    (profiles || []).forEach((p) => {
+      userMap[p.id] = p.full_name || "System User";
+    });
+
+    const events = [];
+
+    // 1. User Account Creations
+    (profiles || []).forEach((p) => {
+      if (!p.created_at) return;
+      const roleLabel = p.role
+        ? p.role.charAt(0).toUpperCase() + p.role.slice(1)
+        : "User";
+      events.push({
+        id: `profile-${p.id}`,
+        timestamp: new Date(p.created_at).getTime(),
+        time: formatAuditTime(p.created_at),
+        actor: p.full_name || "New User",
+        action: "Account registered",
+        category: "Users",
+        tone: "",
+        target: `Role assigned: ${roleLabel}`,
+      });
+    });
+
+    // 2. Appointment Bookings
+    (appointments || []).forEach((a) => {
+      if (!a.created_at) return;
+      const patientName = a.created_by || userMap[a.patient_id] || "Patient";
+      events.push({
+        id: `appt-${a.id}`,
+        timestamp: new Date(a.created_at).getTime(),
+        time: formatAuditTime(a.created_at),
+        actor: patientName,
+        action: "Booked appointment",
+        category: "Appointments",
+        tone: "warn",
+        target: `${a.doctor_name || "Doctor"} • ${a.appointment_date} (${a.start_time}) [${a.status || "Confirmed"}]`,
+      });
+    });
+
+    // 3. Clinical Consultations Recorded
+    (consultations || []).forEach((c) => {
+      if (!c.created_at) return;
+      const doctorName = userMap[c.doctor_id] || "Attending Doctor";
+      const patientName = userMap[c.patient_id] || "Patient";
+      events.push({
+        id: `consult-${c.id}`,
+        timestamp: new Date(c.created_at).getTime(),
+        time: formatAuditTime(c.created_at),
+        actor: doctorName,
+        action: "Recorded consultation",
+        category: "Clinical",
+        tone: "ok",
+        target: `Patient: ${patientName}${c.diagnosis ? ` • Diagnosis: ${c.diagnosis}` : ""}`,
+      });
+    });
+
+    // 4. Prescriptions Issued
+    (prescriptions || []).forEach((rx) => {
+      if (!rx.created_at) return;
+      const doctorName = userMap[rx.doctor_id] || "Attending Doctor";
+      const patientName = userMap[rx.patient_id] || "Patient";
+      events.push({
+        id: `rx-${rx.id}`,
+        timestamp: new Date(rx.created_at).getTime(),
+        time: formatAuditTime(rx.created_at),
+        actor: doctorName,
+        action: "Issued prescription",
+        category: "Clinical",
+        tone: "ok",
+        target: `${rx.medicine_name} (${rx.dosage || "Standard"}) → ${patientName}`,
+      });
+    });
+
+    // 5. Invoices Generated & M-Pesa / Card Payments Confirmed
+    (invoices || []).forEach((inv) => {
+      const patientName = userMap[inv.patient_id] || "Patient";
+      const formattedAmount = `KES ${Number(inv.total_amount || 0).toLocaleString("en-KE")}`;
+
+      if (inv.created_at) {
+        events.push({
+          id: `inv-created-${inv.id}`,
+          timestamp: new Date(inv.created_at).getTime(),
+          time: formatAuditTime(inv.created_at),
+          actor: "Billing System",
+          action: "Generated invoice",
+          category: "Billing",
+          tone: "warn",
+          target: `#${inv.invoice_number} for ${patientName} (${formattedAmount})`,
+        });
+      }
+
+      if (inv.status === "PAID" && inv.paid_at) {
+        events.push({
+          id: `inv-paid-${inv.id}`,
+          timestamp: new Date(inv.paid_at).getTime(),
+          time: formatAuditTime(inv.paid_at),
+          actor: patientName,
+          action: "Completed payment",
+          category: "Billing",
+          tone: "ok",
+          target: `#${inv.invoice_number} • ${formattedAmount} via ${inv.payment_method || "M-Pesa"} (Ref: ${inv.transaction_ref || "Confirmed"})`,
+        });
+      }
+    });
+
+    // Sort newest events first
+    events.sort((a, b) => b.timestamp - a.timestamp);
+    setLogs(events);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchAuditLogs();
+  }, []);
+
+  const rows = logs.filter((r) => {
+    const matchesCat = category === "All" || r.category === category;
+    const matchesQuery = [r.time, r.actor, r.action, r.target]
+      .join(" ")
+      .toLowerCase()
+      .includes(q.toLowerCase());
+    return matchesCat && matchesQuery;
+  });
+
   const columns = [
     { key: "time", label: "Time" },
     { key: "actor", label: "Who" },
-    { key: "action", label: "Action" },
+    {
+      key: "action",
+      label: "Action",
+      render: (r) => <Badge tone={r.tone}>{r.action}</Badge>,
+    },
     { key: "target", label: "Details" },
   ];
+
   return (
     <>
-      <PageHead title="Audit log" />
+      <PageHead title="Audit log">
+        <button className="btn alt sm" onClick={fetchAuditLogs}>
+          Refresh log
+        </button>
+      </PageHead>
+
       <div className="toolbar">
         <input
           className="field"
           aria-label="Search audit log"
-          placeholder="Search by person or action"
+          placeholder="Search by person, action, or M-Pesa reference"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
+        <select
+          className="field"
+          aria-label="Filter by event category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          style={{ maxWidth: "200px" }}
+        >
+          <option value="All">All events</option>
+          <option value="Billing">Billing & M-Pesa</option>
+          <option value="Clinical">Clinical & Rx</option>
+          <option value="Appointments">Appointments</option>
+          <option value="Users">User Accounts</option>
+        </select>
       </div>
-      <DataTable
-        columns={columns}
-        rows={rows}
-        empty="No entries match your search."
-      />
+
+      {loading ? (
+        <p>Loading audit trail...</p>
+      ) : (
+        <div className="audit-table-scroll">
+          <DataTable
+            columns={columns}
+            rows={rows}
+            empty="No audit entries match your search."
+          />
+        </div>
+      )}
     </>
   );
 }

@@ -4,6 +4,8 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 40px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .subtitle-green {
@@ -56,12 +58,18 @@
   gap: 24px;
 }
 
+@media (max-width: 960px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Shared Card Styles */
 .dash-card {
   background-color: #ffffff;
   border-radius: 20px;
   padding: 28px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .card-top {
@@ -83,6 +91,10 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.text-link:hover {
+  text-decoration: underline;
 }
 
 /* Next Appointment Card */
@@ -117,6 +129,7 @@
   display: flex;
   align-items: center;
   gap: 24px;
+  flex-wrap: wrap;
 }
 
 .date-block {
@@ -169,6 +182,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.join-visit-btn:hover {
+  background-color: #006046;
 }
 
 /* Care Team Card */
@@ -183,6 +201,20 @@
   height: 56px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.provider-initials-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #e6f2ef;
+  color: #007a5a;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .provider-info {
@@ -226,6 +258,11 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.message-btn:hover {
+  background-color: #f8f9fa;
 }
 
 /* Health Snapshot Card */
@@ -233,6 +270,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .metric-item {
@@ -262,6 +300,14 @@
   color: #007a5a;
 }
 
+.metric-context.warn {
+  color: #b45309;
+}
+
+.metric-context.bad {
+  color: #b91c1c;
+}
+
 .metric-divider {
   width: 1px;
   height: 60px;
@@ -270,27 +316,55 @@
 
 /* Tasks Card */
 .item-count {
-  font-size: 18px;
-  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 600;
+  color: #007a5a;
+  background-color: #e6f2ef;
+  padding: 4px 12px;
+  border-radius: 999px;
 }
 
 .task-list {
   display: flex;
   flex-direction: column;
+  max-height: 210px;
+  overflow-y: auto;
 }
 
 .task-item {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 8px 0;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  transition: background-color 0.15s;
 }
 
-.task-checkbox {
-  width: 20px;
-  height: 20px;
-  accent-color: #4a4a4a;
-  margin-top: 2px;
+.task-item.clickable {
+  cursor: pointer;
+}
+
+.task-item.clickable:hover {
+  background-color: #f8fafc;
+}
+
+.task-indicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: #e6f2ef;
+  color: #007a5a;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.task-indicator.urgent {
+  background-color: #fef3c7;
+  color: #b45309;
 }
 
 .task-text h4 {
@@ -302,11 +376,11 @@
 .task-text p {
   margin: 0;
   font-size: 12px;
-  color: #8c8c8c;
+  color: #64748b;
 }
 
 .task-divider {
   border: none;
   border-top: 1px solid #f0f0f0;
-  margin: 16px 0;
+  margin: 8px 0;
 }

@@ -48,6 +48,7 @@ export default function Appointments() {
     if (error) {
       alert("Failed to cancel appointment: " + error.message);
     } else {
+      window.dispatchEvent(new Event("appointmentsUpdated"));
       fetchAppointments();
     }
   };

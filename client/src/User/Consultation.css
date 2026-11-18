@@ -1,7 +1,6 @@
 .consultation-container {
   max-width: 1200px;
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -9,14 +8,26 @@
 .consultation-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: flex-end;
+  gap: 16px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.consultation-eyebrow {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #007a5a;
+  margin-bottom: 4px;
 }
 
 .consultation-title {
-  font-size: 28px;
-  font-weight: 500;
-  color: #1a1a1a;
+  font-size: 32px;
+  font-weight: 400;
+  color: #0f172a;
   margin: 0 0 4px 0;
   letter-spacing: -0.5px;
 }
@@ -27,294 +38,221 @@
   margin: 0;
 }
 
-.call-status {
+.consultation-switcher {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background-color: #fff;
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid #f1f5f9;
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a1a1a;
+  gap: 10px;
 }
 
-.status-dot {
-  width: 8px;
-  height: 8px;
-  background-color: #dc3545;
-  border-radius: 50%;
-}
-
-.status-dot.pulsing {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-}
-
-.consultation-layout {
-  display: flex;
-  gap: 24px;
-  flex: 1;
-  min-height: 500px;
-}
-
-/* Video Section */
-.video-section {
-  flex: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.main-video-feed {
-  position: relative;
-  flex: 1;
-  background-color: #1a1a1a;
-  border-radius: 16px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.doctor-video {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.doctor-avatar-large {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  opacity: 0.8;
-}
-
-.participant-name {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 8px;
+.consultation-switcher label {
   font-size: 13px;
-  backdrop-filter: blur(4px);
-}
-
-.pip-video {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  width: 160px;
-  height: 120px;
-  background-color: #333;
-  border-radius: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.pip-video.video-off {
-  background-color: #2a2a2a;
-}
-
-.avatar-fallback {
-  width: 48px;
-  height: 48px;
-  background-color: #007a5a;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-weight: 600;
-  font-size: 18px;
-}
-
-.camera-active-placeholder {
-  color: white;
-  font-size: 12px;
-}
-
-.video-controls {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  padding: 16px;
-  background-color: #fff;
-  border-radius: 16px;
-  border: 1px solid #f1f5f9;
-}
-
-.control-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid #e2e8f0;
-  background-color: #fff;
   color: #475569;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.control-btn:hover {
-  background-color: #f8f9fa;
-}
-
-.control-btn.danger-active {
-  background-color: #fee2e2;
-  color: #dc2626;
-  border-color: #fca5a5;
-}
-
-.end-call-btn {
-  width: auto;
-  padding: 0 24px;
-  border-radius: 24px;
-  background-color: #dc2626;
-  color: white;
-  border: none;
-  font-weight: 600;
-}
-
-.end-call-btn:hover {
-  background-color: #b91c1c;
-}
-
-/* Chat Section */
-.chat-section {
-  flex: 1;
-  background-color: #fff;
-  border-radius: 16px;
-  border: 1px solid #f1f5f9;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.chat-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.chat-header h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.chat-messages {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.message {
-  display: flex;
-  flex-direction: column;
-  max-width: 85%;
-}
-
-.message.received {
-  align-self: flex-start;
-}
-
-.message.sent {
-  align-self: flex-end;
-  align-items: flex-end;
-}
-
-.sender {
-  font-size: 11px;
-  color: #64748b;
-  margin-bottom: 4px;
-}
-
-.message p {
-  margin: 0;
+.consultation-switcher select {
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
   font-size: 14px;
-  line-height: 1.4;
-}
-
-.message.received p {
-  background-color: #f1f5f9;
   color: #0f172a;
-  border-bottom-left-radius: 4px;
+  cursor: pointer;
 }
 
-.message.sent p {
-  background-color: #007a5a;
-  color: white;
-  border-bottom-right-radius: 4px;
-}
-
-.timestamp {
-  font-size: 10px;
-  color: #94a3b8;
-  margin-top: 4px;
-}
-
-.chat-input-area {
-  padding: 16px;
-  border-top: 1px solid #f1f5f9;
-  display: flex;
-  gap: 8px;
-}
-
-.chat-input {
-  flex: 1;
-  padding: 10px 16px;
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  font-size: 14px;
+.consultation-switcher select:focus {
   outline: none;
-}
-
-.chat-input:focus {
   border-color: #007a5a;
 }
 
-.send-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #007a5a;
-  color: white;
-  border: none;
+/* 2-Column Responsive Widget Grid */
+.consultation-widgets-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.consultation-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.card-top-meta {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.card-kicker {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #007a5a;
+  margin-bottom: 4px;
+}
+
+.consultation-card h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.visit-date-badge {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.rx-count-pill {
+  background-color: #e6f2ef;
+  color: #007a5a;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Clinical Notes & Diagnosis Read-Only Boxes */
+.clinical-field-block {
+  margin-bottom: 16px;
+}
+
+.clinical-field-block:last-child {
+  margin-bottom: 0;
+}
+
+.clinical-field-block label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.clinical-value-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #0f172a;
+  line-height: 1.5;
+}
+
+.clinical-value-box.notes-multiline {
+  min-height: 110px;
+  white-space: pre-wrap;
+}
+
+/* Prescription Summary Sheet Item Cards (Exact Match to Doctor Rx Widget) */
+.rx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rx-item {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
+  gap: 16px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.rx-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.rx-info p {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.rx-note {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  color: #007a5a;
+}
+
+.rx-status-tag {
+  background-color: #e6f2ef;
+  color: #007a5a;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.rx-empty-state {
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 36px 20px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* Empty Consultation State */
+.consultation-empty-card {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.consultation-empty-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #0f172a;
+}
+
+.consultation-empty-card p {
+  margin: 0 auto 20px auto;
+  max-width: 440px;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.btn-book-visit {
+  background-color: #007a5a;
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
 }
 
-@media (max-width: 900px) {
-  .consultation-layout {
-    flex-direction: column;
-  }
-  .chat-section {
-    min-height: 300px;
+.btn-book-visit:hover {
+  background-color: #006248;
+}
+
+@media (max-width: 960px) {
+  .consultation-widgets-grid {
+    grid-template-columns: 1fr;
   }
 }

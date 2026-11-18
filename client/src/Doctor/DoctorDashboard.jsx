@@ -157,26 +157,29 @@ export default function DoctorDashboard() {
     setPrescriptionsList((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // 4. Save Consultation & Prescriptions directly to Supabase
+  // 4. Save or Update Consultation & Prescriptions directly to Supabase (prevents duplicate records)
   const handleSaveConsultation = async (issueNow = false) => {
     if (!selectedPatient) return;
     setStatusMessage("");
     setIsSaving(true);
 
     try {
-      // Create Consultation Record
+      // Upsert Consultation Record by appointment_id so saving notes + sending Rx never creates duplicates
       const { data: consultData, error: consultError } = await supabase
         .from("consultations")
-        .insert([
-          {
-            appointment_id: selectedPatient.id,
-            patient_id: selectedPatient.patient_id,
-            doctor_id: doctorProfile.id,
-            chief_complaint: consultation.chiefComplaint,
-            diagnosis: consultation.diagnosis,
-            clinical_notes: consultation.clinicalNotes,
-          },
-        ])
+        .upsert(
+          [
+            {
+              appointment_id: selectedPatient.id,
+              patient_id: selectedPatient.patient_id,
+              doctor_id: doctorProfile.id,
+              chief_complaint: consultation.chiefComplaint,
+              diagnosis: consultation.diagnosis,
+              clinical_notes: consultation.clinicalNotes,
+            },
+          ],
+          { onConflict: "appointment_id" },
+        )
         .select()
         .single();
 

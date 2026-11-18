@@ -1,114 +1,278 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Layout from './Layout/Layout';
-import './Consultation.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import Layout from "./Layout/Layout";
+import { supabase } from "../supabaseClient";
+import "./Consultation.css";
 
 export default function Consultation() {
   const navigate = useNavigate();
-  const [isMuted, setIsMuted] = useState(false);
-  const [isVideoOff, setIsVideoOff] = useState(false);
+  const [consultations, setConsultations] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const handleEndCall = () => {
-    if (window.confirm("Are you sure you want to end the consultation?")) {
-      navigate('/dashboard');
-    }
-  };
+  useEffect(() => {
+    const fetchPatientConsultations = async () => {
+      setLoading(true);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      // 1. Fetch all consultations for the logged-in patient (newest first)
+      const { data: consultData, error } = await supabase
+        .from("consultations")
+        .select("*")
+        .eq("patient_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error || !consultData || consultData.length === 0) {
+        setConsultations([]);
+        setLoading(false);
+        return;
+      }
+
+      // Deduplicate by appointment_id (keeps the newest consultation record per visit)
+      const uniqueConsultData = [];
+      const seenAppointments = new Set();
+      for (const item of consultData) {
+        if (item.appointment_id && seenAppointments.has(item.appointment_id)) {
+          continue;
+        }
+        if (item.appointment_id) {
+          seenAppointments.add(item.appointment_id);
+        }
+        uniqueConsultData.push(item);
+      }
+
+      // 2. Fetch prescriptions linked to this patient
+      const { data: rxData } = await supabase
+        .from("prescriptions")
+        .select("*")
+        .eq("patient_id", user.id)
+        .order("created_at", { ascending: true });
+
+      // 3. Fetch doctor profiles & appointments to display doctor name, specialty, and visit date
+      const doctorIds = [
+        ...new Set(uniqueConsultData.map((c) => c.doctor_id).filter(Boolean)),
+      ];
+      const appointmentIds = [
+        ...new Set(
+          uniqueConsultData.map((c) => c.appointment_id).filter(Boolean),
+        ),
+      ];
+
+      let doctorsMap = {};
+      if (doctorIds.length > 0) {
+        const { data: docs } = await supabase
+          .from("profiles")
+          .select("id, full_name, specialization")
+          .in("id", doctorIds);
+
+        if (docs) {
+          docs.forEach((d) => {
+            doctorsMap[d.id] = d;
+          });
+        }
+      }
+
+      let appointmentsMap = {};
+      if (appointmentIds.length > 0) {
+        const { data: appts } = await supabase
+          .from("appointments")
+          .select("id, appointment_date, start_time, doctor_name")
+          .in("id", appointmentIds);
+
+        if (appts) {
+          appts.forEach((a) => {
+            appointmentsMap[a.id] = a;
+          });
+        }
+      }
+
+      // 4. Combine consultation records with their matching prescriptions and doctor metadata
+      const enriched = uniqueConsultData.map((c) => {
+        const doc = doctorsMap[c.doctor_id] || {};
+        const appt = appointmentsMap[c.appointment_id] || {};
+
+        // Match prescriptions by consultation_id or any duplicate consultation for the same appointment
+        const relatedConsultationIds = consultData
+          .filter((item) => item.appointment_id === c.appointment_id)
+          .map((item) => item.id);
+
+        const matchingRx = (rxData || []).filter((rx) =>
+          relatedConsultationIds.includes(rx.consultation_id),
+        );
+
+        return {
+          ...c,
+          doctorName: doc.full_name || appt.doctor_name || "Attending Doctor",
+          specialization: doc.specialization
+            ? `${doc.specialization} Specialist`
+            : "General Consultation",
+          visitDate:
+            appt.appointment_date ||
+            new Date(c.created_at).toLocaleDateString(),
+          visitTime: appt.start_time || "",
+          prescriptions: matchingRx,
+        };
+      });
+
+      setConsultations(enriched);
+      setSelectedIndex(0);
+      setLoading(false);
+    };
+
+    fetchPatientConsultations();
+  }, []);
+
+  const activeConsultation = consultations[selectedIndex] || null;
 
   return (
     <Layout>
       <div className="consultation-container">
+        {/* Header Section */}
         <div className="consultation-header">
           <div>
-            <h1 className="consultation-title">Video Consultation</h1>
-            <p className="consultation-subtitle">Dr. Maya Chen • Primary Care Physician</p>
+            <span className="consultation-eyebrow">PATIENT PORTAL</span>
+            <h1 className="consultation-title">Consultation & Prescriptions</h1>
+            {activeConsultation && (
+              <p className="consultation-subtitle">
+                {activeConsultation.doctorName} •{" "}
+                {activeConsultation.specialization}
+              </p>
+            )}
           </div>
-          <div className="call-status">
-            <span className="status-dot pulsing"></span>
-            Live (12:45)
-          </div>
+
+          {consultations.length > 1 && (
+            <div className="consultation-switcher">
+              <label htmlFor="visit-select">Select Visit:</label>
+              <select
+                id="visit-select"
+                value={selectedIndex}
+                onChange={(e) => setSelectedIndex(Number(e.target.value))}
+              >
+                {consultations.map((c, idx) => (
+                  <option key={c.id} value={idx}>
+                    {c.visitDate}
+                    {c.visitTime ? ` (${c.visitTime})` : ""} — {c.doctorName}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
-        <div className="consultation-layout">
-          {/* Main Video Area */}
-          <div className="video-section">
-            <div className="main-video-feed">
-              {/* Placeholder for Doctor's Video */}
-              <div className="video-placeholder doctor-video">
-                <img src="https://i.pravatar.cc/300?img=47" alt="Dr. Maya Chen" className="doctor-avatar-large" />
-                <span className="participant-name">Dr. Maya Chen</span>
+        {/* Content Body */}
+        {loading ? (
+          <div className="consultation-card">
+            <p style={{ color: "#64748b", margin: 0 }}>
+              Loading consultation records...
+            </p>
+          </div>
+        ) : !activeConsultation ? (
+          <div className="consultation-card consultation-empty-card">
+            <h3>No consultation records yet</h3>
+            <p>
+              Once a doctor completes your consultation and issues clinical
+              notes or prescriptions, they will appear here.
+            </p>
+            <button
+              className="btn-book-visit"
+              onClick={() => navigate("/book-appointment")}
+            >
+              Book an appointment
+            </button>
+          </div>
+        ) : (
+          <div className="consultation-widgets-grid">
+            {/* Left Widget: Clinical Notes & Diagnosis */}
+            <div className="consultation-card">
+              <div className="card-top-meta">
+                <div>
+                  <span className="card-kicker">VISIT SUMMARY</span>
+                  <h2>Clinical Notes & Diagnosis</h2>
+                </div>
+                <span className="visit-date-badge">
+                  {activeConsultation.visitDate}
+                  {activeConsultation.visitTime
+                    ? ` • ${activeConsultation.visitTime}`
+                    : ""}
+                </span>
               </div>
-              
-              {/* Patient's Picture-in-Picture */}
-              <div className={`pip-video ${isVideoOff ? 'video-off' : ''}`}>
-                {isVideoOff ? (
-                  <div className="avatar-fallback">AH</div>
-                ) : (
-                  <div className="camera-active-placeholder">You</div>
-                )}
+
+              <div className="clinical-field-block">
+                <label>CHIEF COMPLAINT</label>
+                <div className="clinical-value-box">
+                  {activeConsultation.chief_complaint || "Not recorded"}
+                </div>
+              </div>
+
+              <div className="clinical-field-block">
+                <label>DIAGNOSIS / ASSESSMENT</label>
+                <div className="clinical-value-box">
+                  {activeConsultation.diagnosis || "Not recorded"}
+                </div>
+              </div>
+
+              <div className="clinical-field-block">
+                <label>DETAILED CLINICAL NOTES</label>
+                <div className="clinical-value-box notes-multiline">
+                  {activeConsultation.clinical_notes ||
+                    "No additional clinical notes recorded for this visit."}
+                </div>
               </div>
             </div>
 
-            {/* Video Controls */}
-            <div className="video-controls">
-              <button 
-                className={`control-btn ${isMuted ? 'danger-active' : ''}`}
-                onClick={() => setIsMuted(!isMuted)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  {isMuted ? (
-                    <path d="M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6"/>
-                  ) : (
-                    <path d="M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-                  )}
-                </svg>
-              </button>
-              
-              <button 
-                className={`control-btn ${isVideoOff ? 'danger-active' : ''}`}
-                onClick={() => setIsVideoOff(!isVideoOff)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  {isVideoOff ? (
-                    <path d="M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10l-4-3v-.34z"/>
-                  ) : (
-                    <path d="M23 7l-7 5 7 5V7zM1 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H1a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>
-                  )}
-                </svg>
-              </button>
+            {/* Right Widget: Prescription Summary Sheet (Matches Doctor Rx Widget Design) */}
+            <div className="consultation-card">
+              <div className="card-top-meta">
+                <div>
+                  <span className="card-kicker">ISSUED MEDICATION</span>
+                  <h2>Prescription Summary Sheet</h2>
+                </div>
+                <span className="rx-count-pill">
+                  {activeConsultation.prescriptions.length}{" "}
+                  {activeConsultation.prescriptions.length === 1
+                    ? "Item"
+                    : "Items"}
+                </span>
+              </div>
 
-              <button className="control-btn end-call-btn" onClick={handleEndCall}>
-                End Call
-              </button>
+              {activeConsultation.prescriptions.length === 0 ? (
+                <div className="rx-empty-state">
+                  <p>
+                    No medications were prescribed during this consultation.
+                  </p>
+                </div>
+              ) : (
+                <div className="rx-list">
+                  {activeConsultation.prescriptions.map((item, idx) => (
+                    <div key={item.id} className="rx-item">
+                      <div className="rx-info">
+                        <h4>
+                          {idx + 1}. {item.medicine_name}
+                        </h4>
+                        <p>
+                          {item.dosage} • {item.frequency}
+                        </p>
+                        {item.instructions && (
+                          <span className="rx-note">{item.instructions}</span>
+                        )}
+                      </div>
+                      <span className="rx-status-tag">
+                        {item.status || "Issued"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Side Panel for Chat or Notes */}
-          <div className="chat-section">
-            <div className="chat-header">
-              <h3>Chat</h3>
-            </div>
-            <div className="chat-messages">
-              <div className="message received">
-                <span className="sender">Dr. Maya Chen</span>
-                <p>Hello Amelia, I'm reviewing your chart now. How are you feeling today?</p>
-                <span className="timestamp">9:31 AM</span>
-              </div>
-              <div className="message sent">
-                <p>Hi Dr. Chen. I'm feeling a bit better, but still have a slight cough.</p>
-                <span className="timestamp">9:32 AM</span>
-              </div>
-            </div>
-            <div className="chat-input-area">
-              <input type="text" placeholder="Type a message..." className="chat-input" />
-              <button className="send-btn">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </Layout>
   );

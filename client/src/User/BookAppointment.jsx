@@ -173,6 +173,7 @@ export default function BookAppointment() {
 
       if (insertError) throw insertError;
 
+      window.dispatchEvent(new Event("appointmentsUpdated"));
       alert("Appointment booked successfully!");
       navigate("/appointments");
     } catch (err) {
