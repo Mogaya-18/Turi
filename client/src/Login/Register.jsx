@@ -29,6 +29,21 @@ export default function Register() {
     setLoading(true);
     setError("");
 
+    const cleanName = (formData.fullName || formData.name || "").trim();
+    const cleanEmail = (formData.email || "").trim();
+
+    if (!cleanName || !cleanEmail) {
+      setError("Please enter a valid full name and email address.");
+      setLoading(false);
+      return;
+    }
+
+    if ((formData.password || "").length < 6) {
+      setError("Password must be at least 6 characters long.");
+      setLoading(false);
+      return;
+    }
+
     const targetRole = formData.role.toLowerCase();
 
     // Verify employee code if signing up as Doctor or Administrator
